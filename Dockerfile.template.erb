@@ -34,6 +34,7 @@ RUN apt-get update \
  && buildDeps=" \
       make gcc g++ libc-dev \
       ruby-dev \
+      wget bzip2 \
     " \
  && apt-get install -y --no-install-recommends $buildDeps \
 <% end %>
@@ -46,6 +47,10 @@ RUN apt-get update \
  && apk del .build-deps \
  && rm -rf /var/cache/apk/* \
 <% else %>
+ && wget -O /tmp/jemalloc-4.4.0.tar.bz2 https://github.com/jemalloc/jemalloc/releases/download/4.4.0/jemalloc-4.4.0.tar.bz2 \
+ && cd /tmp && tar -xjf jemalloc-4.4.0.tar.bz2 && cd jemalloc-4.4.0/ \
+ && ./configure && make \
+ && mv lib/libjemalloc.so.2 /usr/lib \
  && apt-get purge -y --auto-remove \
                   -o APT::AutoRemove::RecommendsImportant=false \
                   $buildDeps \
@@ -83,6 +88,12 @@ ONBUILD COPY plugins /fluentd/plugins/
 
 ENV FLUENTD_OPT=""
 ENV FLUENTD_CONF="fluent.conf"
+
+<% if is_alpine %>
+ENV LD_PRELOAD=""
+<% else %>
+ENV LD_PRELOAD="/usr/lib/libjemalloc.so.2"
+<% end %>
 
 EXPOSE 24224 5140
 
