@@ -11,7 +11,7 @@
 #	make release-all
 
 
-IMAGE_NAME := fluent/fluentd
+IMAGE_NAME := dil001/fluentd-arm64
 ALL_IMAGES := \
 	v0.12/alpine:v0.12.32,v0.12,stable,latest \
 	v0.12/alpine-onbuild:v0.12.32-onbuild,v0.12-onbuild,stable-onbuild,onbuild \
@@ -138,7 +138,7 @@ src-all:
 dockerfile:
 	mkdir -p $(DOCKERFILE)
 	docker run --rm -i -v $(PWD)/Dockerfile.template.erb:/Dockerfile.erb:ro \
-		ruby:alpine erb -U -T 1 \
+		aarch64/ruby:slim erb -U -T 1 \
 			dockerfile='$(DOCKERFILE)' \
 			version='$(VERSION)' \
 		/Dockerfile.erb > $(DOCKERFILE)/Dockerfile
